@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <title>A humble HTML5 app</title>
+</head>
+<body>
+  <canvas id="canvas" width="400" height="400">
+    Browser not compatible with HTML5 canvas
+  </canvas>
+  <script type="text/javascript" src="simple_inheritance.js" ></script>
+  <script type="text/javascript" src="math.js" ></script>
+  <script type="text/javascript" src="shape.js" ></script>
+  <script type="text/javascript" src="circle.js" ></script>
+  <script type="text/javascript" src="rectangle.js" ></script>
+  
+  <script type="text/javascript">
+
+  const FPS = 30;
+  const GRAVITY = .1;
+
+  /* Player's initial state */
+  var gameObjects = new Array();
+    
+  var canvas = null;
+  var context2D = null;
+  var keys = new Array();
+
+  window.onload = init;
+
+  window.addEventListener('keydown',keyDown,true);
+  window.addEventListener('keyup',keyUp,true);
+
+  function keyDown(evt){
+    keys[evt.keyCode] = true;
+  }
+
+  function keyUp(evt){
+    keys[evt.keyCode] = false;
+  }
+
+  function init()
+  {
+    // load canvas and context
+    canvas = document.getElementById('canvas');
+    context2D = canvas.getContext('2d');
+    context2D.fillStyle   = '#00f';
+    context2D.strokeStyle = '#f00';
+    context2D.lineWidth   = 2;
+    setInterval(draw, 1000 / FPS);
+    setInterval(printDebuggingInfo, 10);
+  }
+
+  function draw()
+  {
+    var i, j, isNearShape;
+    var numObjects = gameObjects.length;
+
+    context2D.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw all game objects
+    for (i = 0; i < numObjects; i++) {
+      // Go through each other shape and handle collisions if they're nearby other shapes
+      for (j = i + 1; j < numObjects; j++) {
+        isNearShape = gameObjects[i].isNearShape(gameObjects[j]);
+        if (isNearShape) {
+          gameObjects[i].handleCollision(gameObjects[j]);
+        }
+      }
+      // Update shape position and draw it
+      gameObjects[i].updatePosition();
+      gameObjects[i].draw(context2D);
+    }
+  }
+  
+  function isKeyPressed(action) {
+    if (action === 'left')    return ((37 in keys && keys[37]) || (65 in keys && keys[65]));
+    if (action === 'right')   return ((39 in keys && keys[39]) || (68 in keys && keys[68]));
+    if (action === 'up')     return ((38 in keys && keys[38]) || (87 in keys && keys[87]));
+    if (action === 'down')    return ((40 in keys && keys[40]) || (83 in keys && keys[83]));
+  }
+
+  function distance(x1, y1, x2, y2) {
+		return Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) );
+  }
+
+  function printDebuggingInfo() {
+    var i, numObjects, object;
+    info = "Debugging info\n<br /><br />";
+    numObjects = gameObjects.length;
+    for (i = 0; i < numObjects; i++) {
+      object = gameObjects[i];
+      info += "Shape type: " + object.type + "\n<br />";
+      info += "mass: " + object.mass + "\n<br />";
+      info += "posX: " + object.posX + "\n<br />";
+      info += "posY: " + object.posY + "\n<br />";
+      info += "velX: " + object.velX + "\n<br />";
+      info += "velY: " + object.velY + "\n<br />";
+      info += "angle: " + object.angle + "\n<br />";
+      info += "moves: " + object.moves + "\n<br />";
+      info += "\n<br />"
+    }
+    info += "\n<br />"
+    info += "Left: " + ((37 in keys && keys[37]) ? "true" : "false") + "\n<br />";
+    info += "Right: " + ((39 in keys && keys[39]) ? "true" : "false") + "\n<br />";
+    info += "Up: " + ((38 in keys && keys[38]) ? "true" : "false") + "\n<br />";
+    info += "Down: " + ((40 in keys && keys[40]) ? "true" : "false") + "\n<br />";
+    info += "a: " + ((65 in keys && keys[65]) ? "true" : "false") + "\n<br />";
+    info += "d: " + ((68 in keys && keys[68]) ? "true" : "false") + "\n<br />";
+    info += "w: " + ((87 in keys && keys[87]) ? "true" : "false") + "\n<br />";
+    info += "s: " + ((83 in keys && keys[83]) ? "true" : "false") + "\n<br />";
+
+    document.getElementById('debugging').innerHTML = info;
+  }
+
+  /* Some shapes */
+//  var circle = new Shape("circle", 50, 50, 5, true, { radius : 50 });
+  var rectangle = new Rectangle(90, 50, 1, 0, 5.0, true, 10, 10);
+  var rectangle2 = new Rectangle(130, 50, -1, 0, 5.0, true, 10, 10);
+  var circle = new Circle(90, 70, 1, 0, 5.0, true, 5);
+  var circle2 = new Circle(130, 70, -1, 0, 5.0, true, 5);
+  var circle3 = new Circle(125, 80, 0, -1, 5.0, true, 5);
+
+  var lowerBoundary = new Rectangle(200, 350, 0, 0, 1.0, false, 390, 10);
+  gameObjects.push(rectangle);
+  gameObjects.push(rectangle2);
+  gameObjects.push(circle);
+  gameObjects.push(circle2);
+  gameObjects.push(circle3);
+  gameObjects.push(lowerBoundary);
+
+  </script>
+  <div id="debugging" style="float:right;margin-right:200px;width:200px;height:100px">
+  </div>  
+</body>
+</html>
