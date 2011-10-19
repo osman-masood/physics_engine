@@ -1,9 +1,12 @@
 var Rectangle = Shape.extend({
 
-	init: function(posX, posY, velX, velY, mass, moves, width, height) {
-		this._super("Rectangle", posX, posY, velX, velY, mass, moves, distance(0, 0, width / 2, height / 2)); // awaken distance is furthest distance it could be even if rotated 
-		this.width = width;
-		this.height = height;
+	// unique params: width, height
+	init: function(params) {
+		params.type = "Rectangle";
+		params.awakeDistance = distance(0, 0, params.width / 2, params.height / 2);
+		this._super(params);
+		this.width = params.width;
+		this.height = params.height;
 	},
 	
 	updatePosition: function() {
@@ -34,12 +37,16 @@ var Rectangle = Shape.extend({
 		context.closePath();
 	},
 	
-	handleCollision: function(shape) {
+	isCollision: function(shape) {
 		var collision = false;
 		if (shape.type === "Rectangle") {
 			collision = this.isRectangleCollision(shape);
 		}
-		if (collision) this._super(shape);
+		return collision;
+	},
+	
+	doCollision: function(shape) {
+		this._super(shape);
 	},
 	
   // If collision, return collision details
@@ -67,4 +74,10 @@ var Rectangle = Shape.extend({
       /* TODO: do this */
     }
   }
+
+	// Uses current angle to get coordinates of the 4 edges
+	getEdgeCoordinates: function() {
+		
+	}
+	
 });

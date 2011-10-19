@@ -1,8 +1,11 @@
 var Circle = Shape.extend({
 
-	init: function(posX, posY, velX, velY, mass, moves, radius) {
-		this._super("Circle", posX, posY, velX, velY, mass, moves, radius); // awaken distance is radius
-		this.radius = radius;
+	// Unique params: radius
+	init: function(params) {
+		params.type = "Circle";
+		params.awakeDistance = params.radius;
+		this._super(params);
+		this.radius = params.radius;
 	},
 	
 	isNearShape: function(shape) {
@@ -22,13 +25,17 @@ var Circle = Shape.extend({
 		context.closePath();
 	},
 	
-	handleCollision: function(shape) {
+	isCollision: function(shape) {
 		var collision = false;
 		if (shape.type === "Circle") {
 			// If distance between two circles is less or equal to the sum of their radii, collision happened
 			collision = distance(this.posX, this.posY, shape.posX, shape.posY) <= (this.radius + shape.radius);
 		}
-		if (collision) this._super(shape);
+		return collision;
 	},
+	
+	doCollision: function(shape) {
+		this._super(shape);
+	}
 	
 });

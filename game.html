@@ -53,18 +53,18 @@
 
   function draw()
   {
-    var i, j, isNearShape;
+    var i, j;
     var numObjects = gameObjects.length;
 
     context2D.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw all game objects
     for (i = 0; i < numObjects; i++) {
-      // Go through each other shape and handle collisions if they're nearby other shapes
+      // For each shape, go through each other shape and handle the collision if they're colliding
       for (j = i + 1; j < numObjects; j++) {
-        isNearShape = gameObjects[i].isNearShape(gameObjects[j]);
-        if (isNearShape) {
-          gameObjects[i].handleCollision(gameObjects[j]);
+				// If the two objects are near and are colliding, then handle their collision
+        if (gameObjects[i].isNearShape(gameObjects[j]) && gameObjects[i].isCollision(gameObjects[j])) {
+          gameObjects[i].doCollision(gameObjects[j]);
         }
       }
       // Update shape position and draw it
@@ -115,13 +115,13 @@
 
   /* Some shapes */
 //  var circle = new Shape("circle", 50, 50, 5, true, { radius : 50 });
-  var rectangle = new Rectangle(90, 50, 1, 0, 5.0, true, 10, 10);
-  var rectangle2 = new Rectangle(130, 50, -1, 0, 5.0, true, 10, 10);
-  var circle = new Circle(90, 70, 1, 0, 5.0, true, 5);
-  var circle2 = new Circle(130, 70, -1, 0, 5.0, true, 5);
-  var circle3 = new Circle(125, 80, 0, -1, 5.0, true, 5);
+  var rectangle = new Rectangle( { posX: 90, posY: 50, width: 10, height: 10 } );
+  var rectangle2 = new Rectangle( { posX: 130, posY: 50, width: 10, height: 10 } );
+  var circle = new Circle( { posX: 90, posY: 70, radius: 5 } );
+  var circle2 = new Circle( { posX: 130, posY: 70, radius: 5 } );
+  var circle3 = new Circle( { posX: 125, posY: 80, radius: 5 } );
 
-  var lowerBoundary = new Rectangle(200, 350, 0, 0, 1.0, false, 390, 10);
+  var lowerBoundary = new Rectangle( { posX: 200, posY: 350, width: 390, height: 10, moves: false } );
   gameObjects.push(rectangle);
   gameObjects.push(rectangle2);
   gameObjects.push(circle);

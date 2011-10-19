@@ -1,16 +1,17 @@
 /* Shape class. Meant to be an abstract class */
 var Shape = Class.extend({
 
-	init: function(type, posX, posY, velX, velY, mass, moves, awakeDistance) {
-		this.type = type;
-		this.posX = posX;
-		this.posY = posY;
-		this.velX = velX;
-		this.velY = velY;
-		this.mass = mass;
-		this.moves = moves;
-		this.awakeDistance = awakeDistance; // An invisible square of side length awakeDistance * 2 is around each Shape. This is to awaken the Shape.
-		this.angle = 0.0; // means pointing towards right side. goes clockwise as angle increases since +y points downwards 
+	// Input params: type, posX, posY, angle (default: 0), velX (default: 0), velY (default: 0), mass (default: 1), moves (default: true), awakeDistance
+	init: function(params) {
+		this.type = params.type;
+		this.posX = params.posX;
+		this.posY = params.posY;
+		this.velX = params.velX || 0;
+		this.velY = params.velY || 0;
+		this.mass = params.mass || 1;
+		this.moves = (params.moves === undefined ? true : params.moves);
+		this.awakeDistance = params.awakeDistance; // An invisible square of side length awakeDistance * 2 is around each Shape. This is to awaken the Shape.
+		this.angle = params.angle || 0.0; // means pointing towards right side. goes clockwise as angle increases since +y points downwards 
 	},
 
 	isNearShape: function(shape) {
@@ -22,12 +23,12 @@ var Shape = Class.extend({
     var r2_topY = shape.posY - shape.awakeDistance;
     var r2_rightX = shape.posX + shape.awakeDistance;
     var r2_bottomY = shape.posY + shape.awakeDistance;
-    var not_colliding = true;
-    not_colliding = r1_leftX > r2_rightX ||
+    var not_near = true;
+    not_near = r1_leftX > r2_rightX ||
                     r1_topY > r2_bottomY ||
                     r1_rightX < r2_leftX ||
                     r1_bottomY < r2_topY;
-		return ! not_colliding;
+		return ! not_near;
 	},
 
 	// Updates X/Y positions according to velocity, and updates velocity according to gravity
@@ -71,7 +72,7 @@ var Shape = Class.extend({
 	},
 
 	// Updates x/y velocities of both objects. Only call this when a collision happens.
-	handleCollision: function(shape) {
+	doCollision: function(shape) {
 		// Both objects move: Set final linear velocities and positions
 		if (this.moves && shape.moves) {
 			final_velocities_x = this.finalVelocitiesMovable(this.velX, this.mass, shape.velX, shape.mass, 1.0);
@@ -82,12 +83,17 @@ var Shape = Class.extend({
 			shape.velY = final_velocities_y.v2;
 		}
 		// One object doesn't move
-		else if (this.moves && ! shape.moves || shape.moves && ! this.moves) {
+		else if ((this.moves && ! shape.moves) || (shape.moves && ! this.moves)) {
 			this.velX = this.velX;
 			this.velY = (-1) * this.velY;
 			shape.velX = 0;
 			shape.velY = 0;
 		}
+	},
+	
+	// This isn't really supposed to be called; only from its subclasses
+	isCollision: function(shape) {
+		return false;
 	},
 	
 	// Calculates final velocities of 2 movable objects in 1 direction
